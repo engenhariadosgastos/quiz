@@ -236,9 +236,11 @@ const COMBOS = {
 };
 
 /* ==========================================================================
-   LINK — troque pela URL real da sua página de captura (Hotmart Pages)
+   LINK — CTA final do quiz. Hoje aponta pro DM do Instagram (@engenhariadosgastos)
+   como solução temporária enquanto a página do Hotmart está instável. Troque
+   de volta pra URL do Hotmart Pages quando ela estiver estável novamente.
    ========================================================================== */
-const LINK_CAPITULO_GRATIS = "https://marcoslevy-silveira.hotmart.host/quiz";
+const LINK_CAPITULO_GRATIS = "https://ig.me/m/engenhariadosgastos";
 
 /* ==========================================================================
    ESTADO E LÓGICA
@@ -419,9 +421,9 @@ function renderResultado() {
         </div>
 
         <div class="cta-card">
-            <p>Esse é só o começo do que o método revela. O livro <strong>Engenharia dos Gastos</strong> mostra como cada arquétipo lida com dívidas, relacionamentos e crises — e como reprogramar o que sabota você.</p>
-            <a href="${LINK_CAPITULO_GRATIS}" style="text-decoration:none;">
-                <button class="btn-primario">Quero o capítulo grátis</button>
+            <p>Esse é só o começo do que o método revela. O livro <strong>Engenharia dos Gastos</strong> mostra como cada arquétipo lida com dívidas, relacionamentos e crises — e como reprogramar o que sabota você. Manda a palavra <strong>ARQUÉTIPO</strong> no direct que a gente te envia o capítulo grátis.</p>
+            <a href="${LINK_CAPITULO_GRATIS}" target="_blank" rel="noopener" style="text-decoration:none;">
+                <button class="btn-primario">Chamar no Instagram</button>
             </a>
         </div>
 
