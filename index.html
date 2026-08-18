@@ -139,6 +139,14 @@ const FAMILIA_COR = {
     "Comunicativo": "var(--fam-comunicativo)"
 };
 
+// Mesmas cores em hex — o Canvas não entende var(--...), precisa do valor puro
+const FAMILIA_HEX = {
+    "Dominante": "#C97A3D",
+    "Servidor": "#4F8577",
+    "Analítico": "#6577C0",
+    "Comunicativo": "#C15A98"
+};
+
 // Arquétipos puros (usados quando Principal === Sombra: perfil "Integrado")
 const ARQUETIPOS = {
     "Dominante": {
@@ -393,6 +401,9 @@ function renderResultado() {
     const corPrincipal = FAMILIA_COR[estado.principal];
     const corSombra = FAMILIA_COR[estado.sombra];
 
+    // guarda pra geração da imagem de compartilhamento
+    estado.resultado = { dados, integrado, corPrincipalHex: FAMILIA_HEX[estado.principal], corSombraHex: FAMILIA_HEX[estado.sombra] };
+
     app.innerHTML = `
         <div class="ficha">
             <span class="tag ficha-eyebrow">${integrado ? "Perfil Integrado" : "Seu arquétipo financeiro"}</span>
@@ -414,22 +425,200 @@ function renderResultado() {
             </a>
         </div>
 
-        <button class="compartilhar-btn" onclick="compartilhar('${dados.emoji}', '${dados.nome}')">Compartilhar meu resultado</button>
+        <button class="compartilhar-btn" id="btnCompartilhar" onclick="compartilharImagem()">📤 Compartilhar meu resultado</button>
         <span class="refazer-link" onclick="iniciarQuiz()">Refazer o quiz</span>
     `;
 }
 
-function compartilhar(emoji, nome) {
-    const texto = `Fiz o quiz de Arquétipo Financeiro e meu resultado foi ${emoji} ${nome}. Descubra o seu:`;
-    const url = window.location.href;
+function quebrarLinhas(ctx, texto, maxWidth) {
+    const palavras = texto.split(" ");
+    const linhas = [];
+    let atual = "";
+    palavras.forEach(palavra => {
+        const teste = atual ? atual + " " + palavra : palavra;
+        if (ctx.measureText(teste).width > maxWidth && atual) {
+            linhas.push(atual);
+            atual = palavra;
+        } else {
+            atual = teste;
+        }
+    });
+    if (atual) linhas.push(atual);
+    return linhas;
+}
 
-    if (navigator.share) {
-        navigator.share({ text: texto, url: url }).catch(() => {});
+function desenharBadge(ctx, texto, cx, cy, cor) {
+    ctx.font = "700 26px 'Space Mono'";
+    const largura = ctx.measureText(texto).width + 48;
+    const altura = 56;
+    const x = cx - largura / 2;
+    const y = cy - altura / 2;
+    const raio = altura / 2;
+
+    ctx.strokeStyle = cor;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x + raio, y);
+    ctx.lineTo(x + largura - raio, y);
+    ctx.arc(x + largura - raio, y + raio, raio, -Math.PI / 2, Math.PI / 2);
+    ctx.lineTo(x + raio, y + altura);
+    ctx.arc(x + raio, y + raio, raio, Math.PI / 2, -Math.PI / 2);
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.fillStyle = cor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(texto, cx, cy + 2);
+
+    return largura;
+}
+
+async function gerarImagemResultado() {
+    const { dados, integrado, corPrincipalHex, corSombraHex } = estado.resultado;
+
+    // garante que as fontes customizadas estejam prontas antes de desenhar
+    await document.fonts.load("700 90px Spectral");
+    await document.fonts.load("italic 600 42px Spectral");
+    await document.fonts.load("400 34px 'Work Sans'");
+    await document.fonts.load("700 26px 'Space Mono'");
+    await document.fonts.ready;
+
+    const W = 1080, H = 1920;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+
+    // fundo
+    ctx.fillStyle = "#14201C";
+    ctx.fillRect(0, 0, W, H);
+    let grad = ctx.createRadialGradient(160, 220, 0, 160, 220, 900);
+    grad.addColorStop(0, "rgba(214,162,74,0.12)");
+    grad.addColorStop(1, "rgba(214,162,74,0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // moldura
+    ctx.strokeStyle = "rgba(214,162,74,0.4)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(56, 56, W - 112, H - 112);
+    ctx.strokeStyle = "#D6A24A";
+    ctx.lineWidth = 3;
+    const c = 30;
+    [[56, 56, 1, 1], [W - 56, 56, -1, 1], [56, H - 56, 1, -1], [W - 56, H - 56, -1, -1]].forEach(([x, y, dx, dy]) => {
+        ctx.beginPath();
+        ctx.moveTo(x, y + c * dy);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x + c * dx, y);
+        ctx.stroke();
+    });
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+
+    // eyebrow
+    ctx.fillStyle = "#D6A24A";
+    ctx.font = "700 26px 'Space Mono'";
+    ctx.fillText((integrado ? "PERFIL INTEGRADO" : "ARQUÉTIPO FINANCEIRO"), W / 2, 220);
+
+    // emoji
+    ctx.font = "230px sans-serif";
+    ctx.fillText(dados.emoji, W / 2, 520);
+
+    // nome
+    ctx.fillStyle = "#EFE7D3";
+    ctx.font = "700 96px Spectral";
+    ctx.fillText(dados.nome, W / 2, 660);
+
+    // binomial
+    ctx.fillStyle = "#B9AF98";
+    ctx.font = "italic 400 30px 'Space Mono'";
+    ctx.fillText(dados.binomial, W / 2, 710);
+
+    // frase-síntese (quebrada em linhas)
+    ctx.fillStyle = "#D6A24A";
+    ctx.font = "italic 600 46px Spectral";
+    const linhasFrase = quebrarLinhas(ctx, `\u201c${dados.frase}\u201d`, 800);
+    let yFrase = 820;
+    linhasFrase.forEach(linha => {
+        ctx.fillText(linha, W / 2, yFrase);
+        yFrase += 60;
+    });
+
+    // badges de família
+    let yBadge = yFrase + 60;
+    if (integrado) {
+        desenharBadge(ctx, estado.principal.toUpperCase(), W / 2, yBadge, corPrincipalHex);
     } else {
-        navigator.clipboard.writeText(`${texto} ${url}`).then(() => {
-            alert("Link copiado! Cola no story ou manda pra alguém.");
-        });
+        ctx.font = "700 26px 'Space Mono'";
+        const larguraP = ctx.measureText("PRINCIPAL: " + estado.principal.toUpperCase()).width + 48;
+        const larguraS = ctx.measureText("SOMBRA: " + estado.sombra.toUpperCase()).width + 48;
+        const gap = 20;
+        const totalW = larguraP + larguraS + gap;
+        desenharBadge(ctx, "PRINCIPAL: " + estado.principal.toUpperCase(), W / 2 - totalW / 2 + larguraP / 2, yBadge, corPrincipalHex);
+        desenharBadge(ctx, "SOMBRA: " + estado.sombra.toUpperCase(), W / 2 + totalW / 2 - larguraS / 2, yBadge, corSombraHex);
     }
+
+    // linha divisória
+    ctx.strokeStyle = "rgba(239,231,211,0.15)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(160, H - 260);
+    ctx.lineTo(W - 160, H - 260);
+    ctx.stroke();
+
+    // rodapé / CTA
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#B9AF98";
+    ctx.font = "400 32px 'Work Sans'";
+    ctx.fillText("Descubra o seu arquétipo em:", W / 2, H - 190);
+
+    ctx.fillStyle = "#D6A24A";
+    ctx.font = "700 36px 'Space Mono'";
+    const urlExibida = window.location.host + window.location.pathname.replace(/\/$/, "");
+    ctx.fillText(urlExibida, W / 2, H - 140);
+
+    ctx.fillStyle = "#EFE7D3";
+    ctx.font = "italic 400 28px Spectral";
+    ctx.fillText("Engenharia dos Gastos", W / 2, H - 90);
+
+    return canvas;
+}
+
+function compartilharImagem() {
+    const btn = document.getElementById("btnCompartilhar");
+    const textoOriginal = btn.textContent;
+    btn.textContent = "Gerando imagem…";
+    btn.disabled = true;
+
+    gerarImagemResultado().then(canvas => {
+        canvas.toBlob(async (blob) => {
+            btn.textContent = textoOriginal;
+            btn.disabled = false;
+
+            const dados = estado.resultado.dados;
+            const arquivo = new File([blob], "arquetipo-financeiro.png", { type: "image/png" });
+            const texto = `Fiz o quiz de Arquétipo Financeiro e meu resultado foi ${dados.emoji} ${dados.nome}! Faz o seu:`;
+
+            if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+                try {
+                    await navigator.share({ files: [arquivo], text: texto });
+                    return;
+                } catch (e) {
+                    // usuário cancelou o compartilhamento — não faz nada
+                    if (e.name === "AbortError") return;
+                }
+            }
+
+            // fallback: baixa a imagem pra pessoa postar manualmente
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "arquetipo-financeiro.png";
+            link.click();
+            alert("Imagem baixada! Agora é só postar ela no seu story do Instagram.");
+        }, "image/png", 0.95);
+    });
 }
 
 render();
