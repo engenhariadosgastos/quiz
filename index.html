@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qual é o seu Arquétipo Financeiro? — Engenharia dos Gastos</title>
+<meta name="description" content="Um quiz de 2 minutos baseado no livro Engenharia dos Gastos: descubra seu arquétipo financeiro principal e sua sombra — e o animal que representa os dois.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ==========================================================================
+   DADOS — perguntas, desempates e fichas de resultado
+   ========================================================================== */
+
+const QUESTOES1 = [
+    {
+        texto: "Você recebe uma quantia extra e inesperada. O que passa primeiro pela sua cabeça?",
+        opcoes: [
+            { label: "Já sei onde aplicar isso pra fazer crescer rápido", valor: "Dominante" },
+            { label: "Que bom — isso me dá mais tranquilidade, talvez ajude alguém da família também", valor: "Servidor" },
+            { label: "Vou analisar com calma antes de decidir o que fazer", valor: "Analítico" },
+            { label: "Já pensei em algo bom pra viver ou fazer com isso", valor: "Comunicativo" }
+        ]
+    },
+    {
+        texto: "Diante de uma decisão financeira importante, seu primeiro movimento é:",
+        opcoes: [
+            { label: "Decidir rápido e agir, ajustando depois se precisar", valor: "Dominante" },
+            { label: "Pensar em como isso afeta quem depende de você", valor: "Servidor" },
+            { label: "Pesquisar, comparar e montar um plano antes de qualquer coisa", valor: "Analítico" },
+            { label: "Conversar com outras pessoas, sentir o clima, se inspirar", valor: "Comunicativo" }
+        ]
+    },
+    {
+        texto: "Ao planejar o orçamento do mês, o que soa mais \u201cvocê\u201d?",
+        opcoes: [
+            { label: "Deixar espaço pra agir conforme as oportunidades aparecem", valor: "Dominante" },
+            { label: "Garantir primeiro que todo mundo ao redor está coberto", valor: "Servidor" },
+            { label: "Montar categorias detalhadas e acompanhar de perto", valor: "Analítico" },
+            { label: "Reservar uma parte boa pra experiências e viver o momento", valor: "Comunicativo" }
+        ]
+    },
+    {
+        texto: "No fundo, \u201criqueza\u201d pra você significa:",
+        opcoes: [
+            { label: "Liberdade pra agir e fazer o que quiser", valor: "Dominante" },
+            { label: "Tranquilidade — sua e de quem depende de você", valor: "Servidor" },
+            { label: "Proteção contra o caos, clareza e controle", valor: "Analítico" },
+            { label: "Viver bem agora, com brilho e pertencimento", valor: "Comunicativo" }
+        ]
+    },
+    {
+        texto: "Diante de uma oportunidade de investimento arriscada, mas promissora, você:",
+        opcoes: [
+            { label: "Confia no instinto e entra rápido, antes que a oportunidade passe", valor: "Dominante" },
+            { label: "Só entra se isso não colocar em risco a segurança de quem depende de você", valor: "Servidor" },
+            { label: "Pesquisa a fundo antes de qualquer decisão, mesmo que demore", valor: "Analítico" },
+            { label: "Pergunta pra rede de contatos o que acham, e se deixa levar pelo clima em torno do assunto", valor: "Comunicativo" }
+        ]
+    }
+];
+
+const QUESTOES2 = [
+    {
+        texto: "Depois de uma semana exaustiva, o que mais te tenta fazer com o dinheiro?",
+        opcoes: [
+            { label: "Topar algo arriscado \u201cpra compensar\u201d, sem pensar muito", valor: "Dominante" },
+            { label: "Gastar com alguém da família ou amigo, mesmo sem sobrar pra você", valor: "Servidor" },
+            { label: "Travar e não decidir nada, só adiar tudo", valor: "Analítico" },
+            { label: "Sair, socializar, gastar pra \u201cviver\u201d um pouco", valor: "Comunicativo" }
+        ]
+    },
+    {
+        texto: "Alguém critica uma decisão financeira sua. Sua reação mais provável:",
+        opcoes: [
+            { label: "Ficar irritado e agir rápido pra provar que estava certo", valor: "Dominante" },
+            { label: "Sentir culpa e ceder, mesmo sem concordar", valor: "Servidor" },
+            { label: "Entrar numa espiral de dúvida e não decidir nada por um tempo", valor: "Analítico" },
+            { label: "Buscar aprovação em outro lugar, gastando pra se sentir bem de novo", valor: "Comunicativo" }
+        ]
+    },
+    {
+        texto: "Você está entediado(a), sem nada pra fazer. O que é mais provável?",
+        opcoes: [
+            { label: "Começar algo novo ou arriscar em algo, só pra sair da inércia", valor: "Dominante" },
+            { label: "Resolver a vida de outra pessoa, mesmo sem ser chamado", valor: "Servidor" },
+            { label: "Abrir o extrato \u201csó pra checar\u201d e ficar horas revisando sem decidir nada", valor: "Analítico" },
+            { label: "Abrir o app de compras ou sair, só pra sentir algo diferente", valor: "Comunicativo" }
+        ]
+    },
+    {
+        texto: "Você está se sentindo sozinho(a) ou desconectado(a). O que tende a acontecer com seu dinheiro?",
+        opcoes: [
+            { label: "Assume um risco maior que o normal, \u201cpra sentir que está no controle\u201d", valor: "Dominante" },
+            { label: "Gasta ajudando ou agradando alguém, tentando reconquistar proximidade", valor: "Servidor" },
+            { label: "Se isola ainda mais nos números, evitando qualquer decisão nova", valor: "Analítico" },
+            { label: "Gasta pra criar um motivo de estar com outras pessoas", valor: "Comunicativo" }
+        ]
+    },
+    {
+        texto: "Uma despesa inesperada ameaça seu orçamento do mês. Sua reação mais provável é:",
+        opcoes: [
+            { label: "Tomar uma atitude decisiva na hora, mesmo arriscada, só pra resolver logo", valor: "Dominante" },
+            { label: "Absorver o problema sozinho, sem pedir ajuda, mesmo se sacrificando", valor: "Servidor" },
+            { label: "Travar, analisar demais, adiar a decisão do que fazer", valor: "Analítico" },
+            { label: "Se distrair saindo ou fazendo algo social, pra não pensar nisso agora", valor: "Comunicativo" }
+        ]
+    }
+];
+
+const DESEMPATE1 = {
+    texto: "Se você tivesse que escolher só uma frase pra descrever como pensa sobre dinheiro, qual soa mais você?",
+    opcoes: [
+        { label: "\u201cDinheiro é uma ferramenta pra agir e conquistar.\u201d", valor: "Dominante" },
+        { label: "\u201cDinheiro é proteção pra quem eu amo.\u201d", valor: "Servidor" },
+        { label: "\u201cDinheiro é controle e clareza.\u201d", valor: "Analítico" },
+        { label: "\u201cDinheiro é viver e se conectar.\u201d", valor: "Comunicativo" }
+    ]
+};
+
+const DESEMPATE2 = {
+    texto: "Numa palavra: o que mais te tira do sério quando o assunto é dinheiro?",
+    opcoes: [
+        { label: "\u201cFicar parado.\u201d", valor: "Dominante" },
+        { label: "\u201cDecepcionar alguém.\u201d", valor: "Servidor" },
+        { label: "\u201cNão ter certeza.\u201d", valor: "Analítico" },
+        { label: "\u201cFicar de fora.\u201d", valor: "Comunicativo" }
+    ]
+};
+
+const FAMILIA_COR = {
+    "Dominante": "var(--fam-dominante)",
+    "Servidor": "var(--fam-servidor)",
+    "Analítico": "var(--fam-analitico)",
+    "Comunicativo": "var(--fam-comunicativo)"
+};
+
+// Arquétipos puros (usados quando Principal === Sombra: perfil "Integrado")
+const ARQUETIPOS = {
+    "Dominante": {
+        emoji: "🦁", nome: "Leão", binomial: "Panthera dominantis",
+        frase: "Riqueza é liberdade para agir.",
+        corpo: "Você decide rápido, assume riscos calculados e não teme errar — só teme ficar parado. É o tipo que enxerga oportunidade antes dos outros e já está agindo enquanto todo mundo ainda está pensando. E o mais raro: sob pressão, você continua sendo essa mesma força — não muda de comportamento quando aperta, só intensifica quem já é. Isso é incomum: a maioria tem uma versão \u201cde vitrine\u201d e uma \u201cde bastidor\u201d bem diferentes. A sua conversa entre si."
+    },
+    "Servidor": {
+        emoji: "🐘", nome: "Elefante", binomial: "Loxodonta protectora",
+        frase: "Riqueza é tranquilidade — minha e de quem depende de mim.",
+        corpo: "Você constrói segurança com paciência rara, protege quem está ao seu redor e raramente faz bobagens grandes. E, diferente da maioria, isso não muda sob pressão — cansaço, crítica ou solidão não fazem uma versão diferente de você aparecer. Você é a mesma pessoa constante nos dois cenários, o que é raro: a maioria tem uma versão \u201cde vitrine\u201d e uma \u201cde bastidor\u201d bem diferentes."
+    },
+    "Analítico": {
+        emoji: "🦉", nome: "Coruja", binomial: "Bubo analyticus",
+        frase: "Riqueza é proteção contra o caos.",
+        corpo: "Você pesquisa, calcula e planeja com profundidade — prefere errar por excesso de cautela do que por precipitação. E essa lógica não desaparece sob pressão: mesmo cansado, criticado ou entediado, você continua pensando do mesmo jeito estruturado. Isso é raro — a maioria tem uma versão \u201cde vitrine\u201d e uma \u201cde bastidor\u201d bem diferentes. A sua conversa entre si."
+    },
+    "Comunicativo": {
+        emoji: "🦜", nome: "Papagaio", binomial: "Psittacus vividus",
+        frase: "Riqueza é viver bem agora, com brilho e pertencimento.",
+        corpo: "Você cria vínculos, vive o presente com intensidade e transforma dinheiro em experiência e conexão. E, ao contrário da maioria, isso não muda quando a pressão aperta — você continua sendo a mesma pessoa social e vibrante mesmo sob estresse. É raro: a maioria tem uma versão \u201cde vitrine\u201d e uma \u201cde bastidor\u201d bem diferentes. A sua conversa entre si."
+    }
+};
+
+// 12 combinações Principal x Sombra
+const COMBOS = {
+    "Dominante|Servidor": {
+        emoji: "🦍", nome: "Gorila-das-costas-prateadas", binomial: "Gorilla protector",
+        frase: "Ele decide rápido pelos outros — e devagar demais por si.",
+        corpo: "Você age antes de todo mundo, e essa velocidade é sua maior força financeira. O problema aparece quando alguém que você admira pede ajuda: aí a mesma coragem que te faz agir vira incapacidade de dizer não. Sua fuga financeira não é gastar com você — é gastar (ou emprestar) por outra pessoa, pra não carregar a culpa de ter negado."
+    },
+    "Dominante|Analítico": {
+        emoji: "🦅", nome: "Falcão-peregrino", binomial: "Falco cautus",
+        frase: "Quando erra grande, ele para de confiar no próprio instinto — e isso o paralisa mais do que qualquer planilha jamais o faria.",
+        corpo: "Você é movido a ação — até o dia em que uma decisão rápida sai cara demais. Aí, sua sombra vira o oposto do que você é: trava, revisa, adia, tenta ter certeza absoluta antes de agir de novo. O risco não é só o erro — é a paralisia que vem depois dele."
+    },
+    "Dominante|Comunicativo": {
+        emoji: "🦚", nome: "Pavão", binomial: "Pavo imago",
+        frase: "Ele não teme o risco financeiro. Teme parecer que perdeu.",
+        corpo: "Você toma decisões que a maioria não teria coragem de tomar. Mas quando sente que está sendo julgado ou comparado, um gasto de imagem entra no lugar do gasto estratégico — e você nem sempre percebe a diferença na hora."
+    },
+    "Servidor|Dominante": {
+        emoji: "🐃", nome: "Búfalo-africano", binomial: "Syncerus explosivus",
+        frase: "Ele segura por meses. Quando solta, solta tudo de uma vez.",
+        corpo: "Você é a pessoa mais constante e confiável com dinheiro que a maioria conhece — até o dia em que cansa de cuidar de todo mundo e explode numa decisão grande, rápida, fora do seu padrão. Não é impulso puro: é acúmulo de autoabandono que finalmente transbordou."
+    },
+    "Servidor|Analítico": {
+        emoji: "🦫", nome: "Castor", binomial: "Castor meticulosus",
+        frase: "O medo de errar por quem ama o imobiliza mais do que qualquer risco real.",
+        corpo: "Você constrói segurança com paciência rara. Mas quando a decisão é grande demais e envolve quem você protege, o medo de errar te trava por meses — e essa mesma proteção vira o motivo de nada avançar."
+    },
+    "Servidor|Comunicativo": {
+        emoji: "🐺", nome: "Lobo", binomial: "Canis nostalgicus",
+        frase: "Quando ninguém precisa dele, ele gasta pra sentir que ainda importa.",
+        corpo: "Cuidar dos outros é sua natureza. Mas quando você se sente sozinho ou esquecido, aparece um lado seu que raramente mostra: gastar pra pertencer, pra ser notado, pra sentir que importa pra alguém também."
+    },
+    "Analítico|Comunicativo": {
+        emoji: "🐬", nome: "Golfinho", binomial: "Delphinus impulsivus",
+        frase: "Ele planeja com precisão — e destrói tudo num fim de semana de impulso social.",
+        corpo: "Você calcula, pesquisa e planeja como poucos. Mas depois de tanto controle, uma janela social abre e você gasta de um jeito que nem parece você — só pra sentir, por um instante, que não precisa calcular nada."
+    },
+    "Analítico|Dominante": {
+        emoji: "🐻", nome: "Urso", binomial: "Ursus latens",
+        frase: "Ele trava por meses — e quando finalmente age, age rápido demais pra compensar o tempo perdido.",
+        corpo: "Você prefere ter certeza antes de agir. Mas quando a indecisão já dura demais, algo nele quebra e toma uma decisão rápida e arriscada — quase como se precisasse provar a si mesmo que ainda consegue agir."
+    },
+    "Analítico|Servidor": {
+        emoji: "🐜", nome: "Formiga", binomial: "Formica devota",
+        frase: "Ele segue o plano — até que alguém que ele ama precise de algo que o plano não previa.",
+        corpo: "Você segue a lógica com uma disciplina rara. Mas quando alguém próximo pede ajuda, a culpa de dizer não é mais forte que qualquer planilha — e você cede, mesmo sabendo que está fora do que planejou."
+    },
+    "Comunicativo|Analítico": {
+        emoji: "🐙", nome: "Polvo", binomial: "Octopus reclusus",
+        frase: "Ele vive bem — mas trava quando pensa no futuro.",
+        corpo: "Você sabe viver o presente como poucos. O problema é o futuro: pensar nele te trava de um jeito que não combina com a sua energia normal, e por isso você evita olhar pra ele o quanto pode."
+    },
+    "Comunicativo|Dominante": {
+        emoji: "🐎", nome: "Cavalo Selvagem", binomial: "Equus liber",
+        frase: "Quando se sente parado, ele não busca uma saída — busca a maior saída possível.",
+        corpo: "Você cria oportunidades através de gente e de relações como poucos conseguem. Mas quando a frustração bate, sai de você uma versão mais brusca: uma decisão grande, rápida, tomada só pra sentir que está se movendo de novo."
+    },
+    "Comunicativo|Servidor": {
+        emoji: "🐵", nome: "Chimpanzé", binomial: "Pan altruisticus",
+        frase: "A culpa de ter aproveitado o vira alguém que carrega os outros por um tempo.",
+        corpo: "Você vive intensamente e cria conexões reais. Mas quando sente que aproveitou demais enquanto alguém próximo sofria, a culpa te faz assumir o peso financeiro do outro — mesmo sem estrutura nenhuma pra isso."
+    }
+};
+
+/* ==========================================================================
+   LINK — troque pela URL real da sua página de captura (Hotmart Pages)
+   ========================================================================== */
+const LINK_CAPITULO_GRATIS = "https://marcoslevy-silveira.hotmart.host/pagina-de-captura-61a3dbc0-ca52-42cc-96c2-582d96f5dbf4";
+
+/* ==========================================================================
+   ESTADO E LÓGICA
+   ========================================================================== */
+
+let estado = {
+    tela: "intro",
+    indice1: 0,
+    respostas1: [],
+    indice2: 0,
+    respostas2: [],
+    candidatosDesempate: [],
+    principal: null,
+    sombra: null
+};
+
+function tally(lista) {
+    const t = { "Dominante": 0, "Servidor": 0, "Analítico": 0, "Comunicativo": 0 };
+    lista.forEach(v => { t[v]++; });
+    return t;
+}
+
+function topEmpatados(t) {
+    const max = Math.max(...Object.values(t));
+    return Object.keys(t).filter(k => t[k] === max);
+}
+
+function iniciarQuiz() {
+    estado = { tela: "quiz1", indice1: 0, respostas1: [], indice2: 0, respostas2: [], candidatosDesempate: [], principal: null, sombra: null };
+    render();
+}
+
+function responder(valor) {
+    if (estado.tela === "quiz1") {
+        estado.respostas1.push(valor);
+        estado.indice1++;
+        if (estado.indice1 < QUESTOES1.length) { render(); return; }
+        finalizarBateria1();
+    } else if (estado.tela === "quiz2") {
+        estado.respostas2.push(valor);
+        estado.indice2++;
+        if (estado.indice2 < QUESTOES2.length) { render(); return; }
+        finalizarBateria2();
+    } else if (estado.tela === "desempate1") {
+        estado.respostas1.push(valor);
+        estado.principal = topEmpatados(tally(estado.respostas1))[0];
+        iniciarBateria2();
+    } else if (estado.tela === "desempate2") {
+        estado.respostas2.push(valor);
+        estado.sombra = topEmpatados(tally(estado.respostas2))[0];
+        estado.tela = "resultado";
+        render();
+    }
+}
+
+function finalizarBateria1() {
+    const empatados = topEmpatados(tally(estado.respostas1));
+    if (empatados.length > 1) {
+        estado.tela = "desempate1";
+        estado.candidatosDesempate = empatados;
+        render();
+    } else {
+        estado.principal = empatados[0];
+        iniciarBateria2();
+    }
+}
+
+function iniciarBateria2() {
+    estado.tela = "quiz2";
+    estado.indice2 = 0;
+    render();
+}
+
+function finalizarBateria2() {
+    const empatados = topEmpatados(tally(estado.respostas2));
+    if (empatados.length > 1) {
+        estado.tela = "desempate2";
+        estado.candidatosDesempate = empatados;
+        render();
+    } else {
+        estado.sombra = empatados[0];
+        estado.tela = "resultado";
+        render();
+    }
+}
+
+/* ==========================================================================
+   RENDERIZAÇÃO
+   ========================================================================== */
+
+const app = document.getElementById("app");
+
+function render() {
+    if (estado.tela === "intro") return renderIntro();
+    if (estado.tela === "quiz1" || estado.tela === "quiz2") return renderPergunta();
+    if (estado.tela === "desempate1" || estado.tela === "desempate2") return renderDesempate();
+    if (estado.tela === "resultado") return renderResultado();
+}
+
+function renderIntro() {
+    app.innerHTML = `
+        <div class="intro-emblema">🦁 🐘 🦉 🦜</div>
+        <h1 class="intro-titulo">Qual é o seu Arquétipo Financeiro?</h1>
+        <p class="intro-corpo">Um quiz de 2 minutos baseado no livro <em>Engenharia dos Gastos</em>. Descubra seu arquétipo principal, sua sombra sob pressão — e o animal que representa os dois.</p>
+        <button class="btn-primario" onclick="iniciarQuiz()">Começar o quiz</button>
+        <p class="intro-rodape">10 perguntas rápidas · sem cadastro pra começar</p>
+    `;
+}
+
+function renderPergunta() {
+    const bateria1 = estado.tela === "quiz1";
+    const banco = bateria1 ? QUESTOES1 : QUESTOES2;
+    const indice = bateria1 ? estado.indice1 : estado.indice2;
+    const q = banco[indice];
+    const passoAtual = bateria1 ? indice : QUESTOES1.length + indice;
+    const totalPassos = QUESTOES1.length + QUESTOES2.length;
+
+    let barra = "";
+    for (let i = 0; i < totalPassos; i++) {
+        barra += `<div class="progresso-passo ${i < passoAtual ? "feito" : ""}"></div>`;
+    }
+
+    app.innerHTML = `
+        <div class="progresso-linha">${barra}</div>
+        <span class="tag pergunta-eyebrow">${bateria1 ? "No seu dia a dia" : "Sob pressão"} — pergunta ${indice + 1} de ${banco.length}</span>
+        <h2 class="pergunta-texto">${q.texto}</h2>
+        <div class="opcoes">
+            ${q.opcoes.map(op => `<button class="opcao-btn" onclick="responder('${op.valor}')">${op.label}</button>`).join("")}
+        </div>
+    `;
+}
+
+function renderDesempate() {
+    const bateria1 = estado.tela === "desempate1";
+    const banco = bateria1 ? DESEMPATE1 : DESEMPATE2;
+    const opcoesFiltradas = banco.opcoes.filter(op => estado.candidatosDesempate.includes(op.valor));
+
+    app.innerHTML = `
+        <div class="progresso-linha">${estado.candidatosDesempate.map(() => `<div class="progresso-passo feito"></div>`).join("")}</div>
+        <span class="tag pergunta-eyebrow">Só mais uma, pra ter certeza</span>
+        <h2 class="pergunta-texto">${banco.texto}</h2>
+        <div class="opcoes">
+            ${opcoesFiltradas.map(op => `<button class="opcao-btn" onclick="responder('${op.valor}')">${op.label}</button>`).join("")}
+        </div>
+    `;
+}
+
+function renderResultado() {
+    let dados, integrado;
+
+    if (estado.sombra === estado.principal) {
+        dados = ARQUETIPOS[estado.principal];
+        integrado = true;
+    } else {
+        const chave = estado.principal + "|" + estado.sombra;
+        dados = COMBOS[chave] || ARQUETIPOS[estado.principal];
+        integrado = !COMBOS[chave];
+    }
+
+    const corPrincipal = FAMILIA_COR[estado.principal];
+    const corSombra = FAMILIA_COR[estado.sombra];
+
+    app.innerHTML = `
+        <div class="ficha">
+            <span class="tag ficha-eyebrow">${integrado ? "Perfil Integrado" : "Seu arquétipo financeiro"}</span>
+            <div class="ficha-emoji">${dados.emoji}</div>
+            <h1 class="ficha-nome">${dados.nome}</h1>
+            <p class="ficha-binomial">${dados.binomial}</p>
+            <p class="ficha-frase">\u201c${dados.frase}\u201d</p>
+            <p class="ficha-corpo">${dados.corpo}</p>
+            <div class="ficha-familias">
+                <span class="ficha-familia-badge" style="color:${corPrincipal}">Principal: ${estado.principal}</span>
+                ${!integrado ? `<span class="ficha-familia-badge" style="color:${corSombra}">Sombra: ${estado.sombra}</span>` : ""}
+            </div>
+        </div>
+
+        <div class="cta-card">
+            <p>Esse é só o começo do que o método revela. O livro <strong>Engenharia dos Gastos</strong> mostra como cada arquétipo lida com dívidas, relacionamentos e crises — e como reprogramar o que sabota você.</p>
+            <a href="${LINK_CAPITULO_GRATIS}" style="text-decoration:none;">
+                <button class="btn-primario">Quero o capítulo grátis</button>
+            </a>
+        </div>
+
+        <button class="compartilhar-btn" onclick="compartilhar('${dados.emoji}', '${dados.nome}')">Compartilhar meu resultado</button>
+        <span class="refazer-link" onclick="iniciarQuiz()">Refazer o quiz</span>
+    `;
+}
+
+function compartilhar(emoji, nome) {
+    const texto = `Fiz o quiz de Arquétipo Financeiro e meu resultado foi ${emoji} ${nome}. Descubra o seu:`;
+    const url = window.location.href;
+
+    if (navigator.share) {
+        navigator.share({ text: texto, url: url }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(`${texto} ${url}`).then(() => {
+            alert("Link copiado! Cola no story ou manda pra alguém.");
+        });
+    }
+}
+
+render();
+</script>
+</body>
+</html>
