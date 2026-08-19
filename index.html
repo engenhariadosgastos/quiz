@@ -6,6 +6,25 @@
 <title>Qual é o seu Arquétipo Financeiro? — Engenharia dos Gastos</title>
 <meta name="description" content="Um quiz de 2 minutos baseado no livro Engenharia dos Gastos: descubra seu arquétipo financeiro principal e sua sombra — e o animal que representa os dois.">
 <link rel="stylesheet" href="styles.css">
+
+<!-- Meta Pixel Code -->
+<!-- Pixel instalado: Teoriamusical_Para_Leigos (ID 2042715005921180) -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2042715005921180');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=2042715005921180&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -388,6 +407,17 @@ function renderDesempate() {
     `;
 }
 
+// Meta Pixel: evento de lead ao clicar no CTA de chamar no Instagram
+function registrarCliqueCTA() {
+    if (typeof fbq === "function") {
+        fbq('track', 'Lead', {
+            content_name: 'quiz_cta_instagram',
+            arquetipo_principal: estado.principal,
+            arquetipo_sombra: estado.sombra
+        });
+    }
+}
+
 function renderResultado() {
     let dados, integrado;
 
@@ -402,6 +432,16 @@ function renderResultado() {
 
     const corPrincipal = FAMILIA_COR[estado.principal];
     const corSombra = FAMILIA_COR[estado.sombra];
+
+    // Meta Pixel: evento de conclusão do quiz (sinal de conversão de verdade pro algoritmo)
+    if (typeof fbq === "function") {
+        fbq('track', 'CompleteRegistration', {
+            content_name: 'quiz_arquetipo_financeiro',
+            arquetipo_principal: estado.principal,
+            arquetipo_sombra: estado.sombra,
+            resultado: dados.nome
+        });
+    }
 
     // guarda pra geração da imagem de compartilhamento
     estado.resultado = { dados, integrado, corPrincipalHex: FAMILIA_HEX[estado.principal], corSombraHex: FAMILIA_HEX[estado.sombra] };
@@ -422,7 +462,7 @@ function renderResultado() {
 
         <div class="cta-card">
             <p>Esse é só o começo do que o método revela. O livro <strong>Engenharia dos Gastos</strong> mostra como cada arquétipo lida com dívidas, relacionamentos e crises — e como reprogramar o que sabota você. Manda a palavra <strong>ARQUÉTIPO</strong> no direct que a gente te envia o capítulo grátis.</p>
-            <a href="${LINK_CAPITULO_GRATIS}" target="_blank" rel="noopener" style="text-decoration:none;">
+            <a href="${LINK_CAPITULO_GRATIS}" target="_blank" rel="noopener" style="text-decoration:none;" onclick="registrarCliqueCTA()">
                 <button class="btn-primario">Chamar no Instagram</button>
             </a>
         </div>
