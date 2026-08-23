@@ -184,6 +184,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; colo
     padding: 16px 18px;
     border-radius: var(--radius);
     cursor: pointer;
+    min-height: 104px;
+    display: flex;
+    align-items: center;
 }
 
 .opcao-btn:hover, .opcao-btn:focus-visible {
