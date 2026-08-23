@@ -259,6 +259,99 @@ const COMBOS = {
    como solução temporária enquanto a página do Hotmart está instável. Troque
    de volta pra URL do Hotmart Pages quando ela estiver estável novamente.
    ========================================================================== */
+/* ==========================================================================
+   APROFUNDAMENTO — página ponte entre o resultado e o CTA. Mostra manifestação
+   + sabotagem + risco financeiro específico da combinação, antes de pedir o
+   próximo passo. Mesmo texto usado no relatório de roteiros já validado.
+   ========================================================================== */
+
+const APROFUNDAMENTO_COMBOS = {
+    "Dominante|Servidor": {
+        manif: "No dia a dia, decide rápido, assume riscos calculados, não teme errar — só teme ficar parado. É o tipo que enxerga oportunidade antes dos outros e já está agindo enquanto todo mundo ainda está pensando.",
+        sabot: "Sob crítica ou cansaço, a dificuldade em dizer “não” da sombra Servidor aparece: cede a pedidos financeiros de terceiros, assume compromissos que não cabem no orçamento “pra não decepcionar”, e tenta resolver a culpa gastando ou emprestando.",
+        risco: "Alto ganho, mas vazamento constante por generosidade compulsiva — sustenta pessoas capazes de se sustentar, empresta sem planejamento, ou assume o rombo financeiro alheio por não suportar decepcionar quem admira."
+    },
+    "Dominante|Analítico": {
+        manif: "Movido por ação, impacto e autonomia. Vê o mundo como algo a transformar e conquistar. Não gosta de processos longos — prefere decidir e corrigir andando.",
+        sabot: "Diante de um erro grande ou de uma perda inesperada, a sombra Analítica trava o Dominante numa paralisia incomum pra ele: passa a checar excessivamente, adiar decisões simples, e a impulsividade vira medo paralisante de errar de novo — um oposto desconfortável do seu jeito natural.",
+        risco: "Ciclos de agressão financeira seguidos de imobilismo: age rápido demais, erra, e depois trava tanto que deixa oportunidades reais passarem por medo de repetir o erro."
+    },
+    "Dominante|Comunicativo": {
+        manif: "Direto, rápido, estratégico. Prospera criando oportunidades que outros nem enxergam, com coragem pra assumir riscos que a maioria evita.",
+        sabot: "Sob crítica pública ou sensação de estar “pra trás” socialmente, a sombra Comunicativa aparece como gasto de status — compra pra provar que está vencendo, pra manter a imagem de sucesso diante dos outros, mesmo quando isso não tem relação com a próxima jogada estratégica.",
+        risco: "Gastos de exibição disfarçados de investimento — carro, evento, sinal externo de sucesso comprado pra calar a comparação social, não porque o negócio pedia."
+    },
+    "Servidor|Dominante": {
+        manif: "Disciplinado, previsível, constante. Constrói reservas naturalmente e raramente faz bobagens grandes — seus erros costumam ser sutis e cumulativos, não explosivos.",
+        sabot: "Depois de acumular responsabilidade demais e dizer “sim” por tempo demais, a sombra Dominante explode: uma decisão grande, rápida e fora do padrão, quase como um ato de rebeldia contra o próprio papel de cuidador.",
+        risco: "Longos períodos de disciplina interrompidos por um gasto único e desproporcional — o “estouro” depois do acumulo de autoabandono."
+    },
+    "Servidor|Analítico": {
+        manif: "Proteção, apoio, construção de reservas. Assume responsabilidades silenciosas e garante que quem depende dele esteja bem.",
+        sabot: "Diante de uma decisão que pode afetar quem ele protege, a sombra Analítica trava o Servidor num medo de errar tão grande que ele deixa de decidir — fica paralisado tentando garantir a decisão “perfeita” pra não falhar com ninguém.",
+        risco: "Procrastinação em decisões financeiras importantes (seguro, invest., planejamento) por medo de tomar a decisão errada em nome de quem depende dele — a proteção vira inércia."
+    },
+    "Servidor|Comunicativo": {
+        manif: "Cuida, sustenta, garante. Sua disciplina é real e sua constância emocional é uma das maiores forças financeiras que existem.",
+        sabot: "Sob solidão ou tédio, a sombra Comunicativa aparece como busca de conexão via gasto social — não é mais só cuidar dos outros, é tentar ser aceito, pertencer, ser notado, o que ele raramente permite a si mesmo em situações normais.",
+        risco: "Gastos sociais impulsivos e pouco característicos — sair, presentear, bancar um grupo — motivados por carência de conexão, não por generosidade consciente."
+    },
+    "Analítico|Comunicativo": {
+        manif: "Pesquisa, calcula, planeja com profundidade. Prefere errar por excesso de cautela do que por precipitação — e quando acerta, acerta de forma impecável.",
+        sabot: "Depois de períodos de controle rigoroso, a sombra Comunicativa explode em impulsos sociais — um fim de semana, uma viagem, um grupo de amigos — destruindo em dias o que levou meses pra planejar.",
+        risco: "Ciclos de planejamento impecável interrompidos por surtos sociais de gasto que anulam o progresso acumulado."
+    },
+    "Analítico|Dominante": {
+        manif: "Estrutura, lógica, visão de longo prazo. Suas decisões são fundamentadas e consistentes — o oposto de impulsivas.",
+        sabot: "Depois de travar por tempo demais numa decisão, a sombra Dominante aparece como um movimento brusco e desproporcional — uma ação rápida e arriscada pra sair da paralisia de uma vez, sem o cuidado habitual.",
+        risco: "Longos períodos de indecisão seguidos por uma decisão grande tomada rápido demais — exatamente o oposto do seu padrão, e por isso mais perigosa."
+    },
+    "Analítico|Servidor": {
+        manif: "Racional, estruturado, consistente. Reduz decisões ao mínimo possível de risco, sempre com um plano de longo prazo em mente.",
+        sabot: "Diante de um pedido de ajuda de alguém próximo, a sombra Servidor faz o Analítico ceder contra o próprio plano — sente culpa por não ajudar e rompe a lógica que sempre seguiu, mesmo sabendo que não deveria.",
+        risco: "Quebra silenciosa do planejamento por culpa moral — empresta, banca ou cede fora do que o próprio plano permitia, e depois racionaliza a decisão pra não admitir a inconsistência."
+    },
+    "Comunicativo|Analítico": {
+        manif: "Cria vínculos, constrói experiências, vive o presente com intensidade. Sua habilidade social é sua moeda mais poderosa.",
+        sabot: "Quando o assunto é o futuro — aposentadoria, planejamento de longo prazo, decisões estruturais — a sombra Analítica trava o Comunicativo numa ansiedade que ele raramente sente no dia a dia: evita olhar, adia, foge do tema.",
+        risco: "Vive bem no presente, mas constrói pouco pro futuro — evita planejamento de longo prazo porque pensar nele gera desconforto real, não só desinteresse."
+    },
+    "Comunicativo|Dominante": {
+        manif: "Adaptável, criativo, gera experiências valiosas. Conquista portas fechadas através de pessoas — sua rede é seu maior ativo.",
+        sabot: "Sob frustração ou sensação de estagnação, a sombra Dominante aparece como decisão financeira agressiva e precipitada — “resolver tudo de uma vez”, um movimento grande e rápido pra sair da frustração, sem o cuidado que normalmente aplicaria em relações.",
+        risco: "Decisões grandes tomadas em momentos de frustração, sem o tempo de maturação que sua criatividade normalmente permite — aposta tudo numa direção só pra sentir movimento de novo."
+    },
+    "Comunicativo|Servidor": {
+        manif: "Gera pertencimento, cria memórias, constrói ambientes que inspiram. Vive de conexão e movimento.",
+        sabot: "Sob culpa (por ter gastado, por ter se divertido enquanto alguém sofria), a sombra Servidor faz o Comunicativo se sacrificar por outros de forma desproporcional — assume responsabilidade alheia só pra manter o vínculo, mesmo sem estrutura pra isso.",
+        risco: "Assume compromissos financeiros por outras pessoas em momentos de culpa social, criando obrigações que não cabem no seu padrão de vida vivido no presente."
+    }
+};
+
+const APROFUNDAMENTO_PUROS = {
+    "Dominante": {
+        manif: "Você age antes de todo mundo, decide rápido, e essa velocidade é sua maior força financeira. E o mais raro: sob pressão, você continua sendo essa mesma pessoa — não muda de comportamento quando aperta.",
+        sabot: "Mas até o Dominante mais consistente tem um ponto cego, e o livro é direto sobre isso: ele prospera agindo — e desmorona pela pressa. Não é uma sombra puxando pra outro lado, é o excesso da própria força: decidir rápido demais até nas vezes em que a situação pedia mais calma.",
+        risco: "É um risco mais sutil que os das combinações com sombra clara, porque não tem contraste óbvio pra te avisar — é sempre a mesma velocidade, inclusive nos momentos que exigiam o oposto."
+    },
+    "Servidor": {
+        manif: "Você constrói segurança com paciência rara, protege quem está ao seu redor, e isso não muda sob pressão — cansaço, crítica ou solidão não fazem uma versão diferente de você aparecer.",
+        sabot: "Mas até o Servidor mais consistente tem um ponto cego: ele prospera aprendendo limites — e desmorona pela culpa. Não é uma sombra puxando pra outro lado, é o excesso da própria força: cuidar demais, até quando cuidar de si mesmo deveria vir primeiro.",
+        risco: "É um desgaste silencioso — não tem o contraste de uma explosão visível te avisando, é o acúmulo constante de colocar o outro na frente, inclusive quando isso já não fazia mais sentido."
+    },
+    "Analítico": {
+        manif: "Você pesquisa, calcula e planeja com profundidade, e essa lógica não desaparece sob pressão — mesmo cansado ou criticado, você continua pensando do mesmo jeito estruturado.",
+        sabot: "Mas até o Analítico mais consistente tem um ponto cego: ele prospera reduzindo decisões ao mínimo — e desmorona pela paralisia. Não é uma sombra puxando pra outro lado, é o excesso da própria força: tanta cautela que a decisão nunca sai do papel.",
+        risco: "É o risco mais difícil de perceber a tempo — não parece erro nenhum acontecendo, só oportunidade real passando enquanto a certeza absoluta nunca chega."
+    },
+    "Comunicativo": {
+        manif: "Você cria vínculos, vive o presente com intensidade, e isso não muda quando a pressão aperta — você continua sendo a mesma pessoa social e vibrante mesmo sob estresse.",
+        sabot: "Mas até o Comunicativo mais consistente tem um ponto cego: ele prospera com sistemas simples e automáticos — e desmorona pela impulsividade. Não é uma sombra puxando pra outro lado, é o excesso da própria força: viver tão o presente que o futuro nunca entra na conta.",
+        risco: "É um risco que não parece risco — cada decisão isolada faz sentido no momento, e só o acúmulo delas, olhado de longe, revela o padrão."
+    }
+};
+
+
 const LINK_CAPITULO_GRATIS = "https://ig.me/m/engenhariadosgastos";
 
 /* ==========================================================================
@@ -443,7 +536,7 @@ function renderResultado() {
         });
     }
 
-    // guarda pra geração da imagem de compartilhamento
+    // guarda pra geração da imagem de compartilhamento e pra tela de aprofundamento
     estado.resultado = { dados, integrado, corPrincipalHex: FAMILIA_HEX[estado.principal], corSombraHex: FAMILIA_HEX[estado.sombra] };
 
     app.innerHTML = `
@@ -460,14 +553,49 @@ function renderResultado() {
             </div>
         </div>
 
+        <button class="btn-primario" onclick="renderAprofundamento()">Entender o que isso significa →</button>
+        <button class="compartilhar-btn" id="btnCompartilhar" onclick="compartilharImagem()">📤 Compartilhar meu resultado</button>
+    `;
+}
+
+function renderAprofundamento() {
+    const { dados, integrado } = estado.resultado;
+
+    const conteudo = integrado
+        ? APROFUNDAMENTO_PUROS[estado.principal]
+        : APROFUNDAMENTO_COMBOS[estado.principal + "|" + estado.sombra];
+
+    // Meta Pixel: mede quantas pessoas avançam da ficha pro aprofundamento
+    // (sinal de engajamento mais profundo que só terminar o quiz)
+    if (typeof fbq === "function") {
+        fbq('track', 'ViewContent', {
+            content_name: 'aprofundamento_arquetipo',
+            arquetipo_principal: estado.principal,
+            arquetipo_sombra: estado.sombra
+        });
+    }
+
+    app.innerHTML = `
+        <div class="ficha" style="text-align:left;">
+            <span class="tag ficha-eyebrow" style="text-align:center; display:block;">${dados.emoji} ${dados.nome}</span>
+
+            <h2 class="onboarding-titulo" style="text-align:center; margin-top:8px;">O que isso realmente significa</h2>
+
+            <p class="ficha-corpo" style="margin-top:20px;">${conteudo.manif}</p>
+            <p class="ficha-corpo">${conteudo.sabot}</p>
+
+            <div class="cta-card" style="margin-top:10px; text-align:left;">
+                <p style="margin:0;"><strong>${conteudo.risco}</strong></p>
+            </div>
+        </div>
+
         <div class="cta-card">
-            <p>Esse é só o começo do que o método revela. O livro <strong>Engenharia dos Gastos</strong> mostra como cada arquétipo lida com dívidas, relacionamentos e crises — e como reprogramar o que sabota você. Manda a palavra <strong>ARQUÉTIPO</strong> no direct que a gente te envia o capítulo grátis.</p>
+            <p>O livro <strong>Engenharia dos Gastos</strong> mostra como o seu arquétipo lida com dívidas, relacionamentos e crises — e como reprogramar exatamente esse padrão. Manda a palavra <strong>ARQUÉTIPO</strong> no direct que a gente te envia o capítulo grátis.</p>
             <a href="${LINK_CAPITULO_GRATIS}" target="_blank" rel="noopener" style="text-decoration:none;" onclick="registrarCliqueCTA()">
-                <button class="btn-primario">Chamar no Instagram</button>
+                <button class="btn-primario">Quero entender como resolver isso</button>
             </a>
         </div>
 
-        <button class="compartilhar-btn" id="btnCompartilhar" onclick="compartilharImagem()">📤 Compartilhar meu resultado</button>
         <span class="refazer-link" onclick="iniciarQuiz()">Refazer o quiz</span>
     `;
 }
