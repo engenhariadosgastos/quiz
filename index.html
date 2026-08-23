@@ -506,7 +506,8 @@ function registrarCliqueCTA() {
         fbq('track', 'Lead', {
             content_name: 'quiz_cta_instagram',
             arquetipo_principal: estado.principal,
-            arquetipo_sombra: estado.sombra
+            arquetipo_sombra: estado.sombra,
+            variante_cta: estado.varianteCTA || "desconhecida"
         });
     }
 }
@@ -558,12 +559,22 @@ function renderResultado() {
     `;
 }
 
+// Teste A/B do texto do CTA principal — sorteia uma vez por resultado e
+// registra qual apareceu no evento Lead do Pixel, pra comparar taxa de
+// clique de cada variante no Gerenciador de Eventos depois.
+const CTA_VARIANTES = [
+    "Chega de sabotar meu próprio dinheiro",
+    "Já sei o problema. Quero a solução."
+];
+
 function renderAprofundamento() {
     const { dados, integrado } = estado.resultado;
 
     const conteudo = integrado
         ? APROFUNDAMENTO_PUROS[estado.principal]
         : APROFUNDAMENTO_COMBOS[estado.principal + "|" + estado.sombra];
+
+    estado.varianteCTA = CTA_VARIANTES[Math.floor(Math.random() * CTA_VARIANTES.length)];
 
     // Meta Pixel: mede quantas pessoas avançam da ficha pro aprofundamento
     // (sinal de engajamento mais profundo que só terminar o quiz)
@@ -592,7 +603,7 @@ function renderAprofundamento() {
         <div class="cta-card">
             <p>O livro <strong>Engenharia dos Gastos</strong> mostra como o seu arquétipo lida com dívidas, relacionamentos e crises — e como reprogramar exatamente esse padrão. Manda a palavra <strong>ARQUÉTIPO</strong> no direct que a gente te envia o capítulo grátis.</p>
             <a href="${LINK_CAPITULO_GRATIS}" target="_blank" rel="noopener" style="text-decoration:none;" onclick="registrarCliqueCTA()">
-                <button class="btn-primario">Quero entender como resolver isso</button>
+                <button class="btn-primario">${estado.varianteCTA}</button>
             </a>
         </div>
 
